@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import GraficoMensual from './GraficoMensual';
 import './App.css';
 
 const App = () => {
@@ -103,11 +102,6 @@ const App = () => {
             </li>
           ))}
         </ul>
-      </div>
-
-      <div className="section">
-        <h2>Gráfico de Consumo Mensual</h2>
-        <GraficoMensual datos={datosMensuales} />
       </div>
 
       <div className="section">
