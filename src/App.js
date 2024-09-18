@@ -17,17 +17,14 @@ const App = () => {
   const [cantidad, setCantidad] = useState('');
   const [nuevoAlimento, setNuevoAlimento] = useState('');
   const [nuevaProteina, setNuevaProteina] = useState('');
-  const [datosMensuales, setDatosMensuales] = useState([]);
-  const [mostrarBaseDatos, setMostrarBaseDatos] = useState(false);
+  const [proteinaTotalDiaria, setProteinaTotalDiaria] = useState(0); // Variable para almacenar el total de proteína
 
+  // Calcular la proteína total diaria cada vez que cambie la ingesta diaria
   useEffect(() => {
-    const datosGuardados = JSON.parse(localStorage.getItem('datosMensuales')) || [];
-    setDatosMensuales(datosGuardados);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('datosMensuales', JSON.stringify(datosMensuales));
-  }, [datosMensuales]);
+    const totalProteina = ingestaDiaria.reduce((total, ingesta) => total + ingesta.proteina, 0);
+    setProteinaTotalDiaria(totalProteina);
+    console.log(`Proteína total diaria: ${totalProteina}`); // Para debug
+  }, [ingestaDiaria]);
 
   const manejarAgregarIngesta = () => {
     if (!alimentoSeleccionado || !cantidad) return;
@@ -37,20 +34,6 @@ const App = () => {
     const nuevaIngesta = { alimento: alimentoSeleccionado, cantidad, proteina: proteinaTotal };
 
     setIngestaDiaria([...ingestaDiaria, nuevaIngesta]);
-
-    const fechaActual = new Date().toISOString().split('T')[0];
-    const nuevoDato = { fecha: fechaActual, proteina: proteinaTotal };
-
-    setDatosMensuales((prevDatos) => {
-      const index = prevDatos.findIndex((dato) => dato.fecha === fechaActual);
-      if (index !== -1) {
-        const datosActualizados = [...prevDatos];
-        datosActualizados[index].proteina += proteinaTotal;
-        return datosActualizados;
-      } else {
-        return [...prevDatos, nuevoDato];
-      }
-    });
 
     setAlimentoSeleccionado('');
     setCantidad('');
@@ -63,10 +46,6 @@ const App = () => {
     setAlimentos([...alimentos, nuevo]);
     setNuevoAlimento('');
     setNuevaProteina('');
-  };
-
-  const manejarMostrarBaseDatos = () => {
-    setMostrarBaseDatos(!mostrarBaseDatos);
   };
 
   return (
@@ -104,6 +83,12 @@ const App = () => {
         </ul>
       </div>
 
+      {/* Cuadro de respuesta que muestra la proteína total ingerida en el día */}
+      <div className="section">
+        <h2>Proteína Total Ingerida Hoy</h2>
+        <p>{proteinaTotalDiaria.toFixed(2)}g de proteína</p>
+      </div>
+
       <div className="section">
         <h2>Agregar Nuevo Alimento</h2>
         <input
@@ -120,25 +105,6 @@ const App = () => {
         />
         <button onClick={manejarAgregarAlimento}>Agregar alimento</button>
       </div>
-
-      <div className="section">
-        <button onClick={manejarMostrarBaseDatos}>
-          {mostrarBaseDatos ? 'Ocultar base de datos' : 'Ver base de datos'}
-        </button>
-      </div>
-
-      {mostrarBaseDatos && (
-        <div className="section">
-          <h3>Base de Datos de Alimentos</h3>
-          <ul>
-            {alimentos.map((alimento, index) => (
-              <li key={index}>
-                {alimento.nombre} - {alimento.proteina}g de proteína cada 100g
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 };
