@@ -1,5 +1,8 @@
 import React, { useRef, useEffect } from 'react';
-import { Chart } from 'chart.js/auto';
+import { Chart, registerables } from 'chart.js';
+
+// Registra todos los elementos necesarios de chart.js
+Chart.register(...registerables);
 
 const GraficoMensual = ({ datos }) => {
   const chartRef = useRef(null);
@@ -8,11 +11,13 @@ const GraficoMensual = ({ datos }) => {
   useEffect(() => {
     const ctx = chartRef.current.getContext('2d');
 
+    // Destruye el gráfico anterior si existe
     if (myChartRef.current) {
       myChartRef.current.destroy();
     }
 
     if (datos.length > 0) {
+      // Crea un nuevo gráfico
       myChartRef.current = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -40,6 +45,7 @@ const GraficoMensual = ({ datos }) => {
       });
     }
 
+    // Limpia el gráfico cuando el componente se desmonte
     return () => {
       if (myChartRef.current) {
         myChartRef.current.destroy();
